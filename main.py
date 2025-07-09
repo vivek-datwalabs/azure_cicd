@@ -5,4 +5,4 @@ app = FastAPI()
 
 @app.get("/")
 async def root():
-    return {"message": "FastAPI is running 🚀 in dev mode"}
+    return {"message": "FastAPI is running 🚀 in dev mode with latest code"}
