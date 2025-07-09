@@ -1,4 +1,4 @@
-name: CI/CD: Push Docker Image to ACR from dev branch
+name: CI/CD - Push Docker Image to ACR (dev)
 
 on:
   push:
@@ -18,14 +18,14 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: ACR Docker Login
+      - name: Docker Login to ACR
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.ACR_LOGIN_SERVER }}
           username: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
           password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
-      - name: Build and Push Docker Image to ACR
+      - name: Build and Push Docker Image
         run: |
           COMMIT_HASH=${{ github.sha }}
           IMAGE_TAG=${{ secrets.ACR_LOGIN_SERVER }}/${{ secrets.ACR_REPOSITORY }}:${COMMIT_HASH}
