@@ -5,4 +5,4 @@ app = FastAPI()
 
 @app.get("/")
 async def root():
-    return {"message": "FastAPI is running 🚀 in dev mode with latest code ready to main now without restart app services final go !!!!"}
+    return {"message": "FastAPI is running 🚀 in dev mode with latest code ready to main now without restart app services final go with a custom domain telvi.vivekranjansahoo.in  !!!!"}
