@@ -41,3 +41,8 @@ jobs:
           app-name: 'testt123'  # Replace with your actual App Service name
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: ${{ secrets.ACR_LOGIN_SERVER }}/${{ secrets.ACR_REPOSITORY }}:dev-latest
+
+      - name: Restart App Service
+        run: |
+          az webapp restart --name testt123 --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
+          echo "App Service restarted successfully."
