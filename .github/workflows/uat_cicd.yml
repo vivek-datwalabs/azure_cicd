@@ -1,0 +1,48 @@
+name: CI/CD - Push Docker Image to ACR and Deploy to App Service (uat)
+
+on:
+  push:
+    branches:
+      - uat
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Docker Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+
+      - name: Build and Push Docker Image
+        run: |
+          COMMIT_HASH=${{ github.sha }}
+          IMAGE_TAG=${{ secrets.ACR_LOGIN_SERVER }}/${{ secrets.ACR_REPOSITORY_UAT }}:${COMMIT_HASH}
+          IMAGE_LATEST=${{ secrets.ACR_LOGIN_SERVER }}/${{ secrets.ACR_REPOSITORY_UAT }}:uat-latest
+
+          docker build --no-cache -t $IMAGE_TAG -t $IMAGE_LATEST .
+          docker push $IMAGE_TAG
+          docker push $IMAGE_LATEST
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.AZURE_APP_NAME_UAT }}  # Replace with your actual App Service name
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_UAT }}
+          images: ${{ secrets.ACR_LOGIN_SERVER }}/${{ secrets.ACR_REPOSITORY_UAT }}:uat-latest
+
+      - name: Restart App Service
+        run: |
+          az webapp restart --name ${{ secrets.AZURE_APP_NAME_UAT }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
+          echo "App Service restarted successfully."
